@@ -21,6 +21,7 @@ public class RecipeDetail extends AppCompatActivity {
     private TextView nutritionInfo;
     private RecyclerView cookingStepsRecyclerView;
     private CookingStepsAdapter cookingStepsAdapter;
+    private TextView missingIngredientsView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,9 @@ public class RecipeDetail extends AppCompatActivity {
 
         // 조리 순서 설정
         setupCookingSteps();
+
+        // 부족한 재료를 확인하고 화면에 표시
+        checkMissingIngredients(recipe);
     }
 
     private void initializeViews() {
@@ -50,6 +54,7 @@ public class RecipeDetail extends AppCompatActivity {
         ingredients = findViewById(R.id.ingredients);
         nutritionInfo = findViewById(R.id.nutritionInfo);
         cookingStepsRecyclerView = findViewById(R.id.cookingStepsRecyclerView);
+        missingIngredientsView = findViewById(R.id.missingIngredients);
     }
 
     private Recipe getRecipeFromIntent() {
@@ -58,22 +63,22 @@ public class RecipeDetail extends AppCompatActivity {
             String title = extras.getString("title", "");
             String ingredients = extras.getString("ingredients", "");
             int imageResourceId = extras.getInt("imageResourceId", 0);
-            
-            switch(extras.getString("recipeType", "")) {
+
+            switch (extras.getString("recipeType", "")) {
                 case "korean":
                     return new Recipe.KoreanRecipe.Builder(title, ingredients, imageResourceId)
-                        .spicyLevel(extras.getString("spicyLevel", "보통"))
-                        .build();
+                            .spicyLevel(extras.getString("spicyLevel", "보통"))
+                            .build();
                 case "diet":
                     return new Recipe.DietRecipe.Builder(title, ingredients, imageResourceId)
-                        .calories(extras.getInt("calories", 0))
-                        .protein(extras.getInt("protein", 0))
-                        .build();
+                            .calories(extras.getInt("calories", 0))
+                            .protein(extras.getInt("protein", 0))
+                            .build();
                 case "lowSalt":
                     return new Recipe.LowSaltRecipe.Builder(title, ingredients, imageResourceId)
-                        .sodiumContent(extras.getInt("sodiumContent", 0))
-                        .withSaltSubstitute(extras.getString("saltAlternative", ""))
-                        .build();
+                            .sodiumContent(extras.getInt("sodiumContent", 0))
+                            .withSaltSubstitute(extras.getString("saltAlternative", ""))
+                            .build();
                 case "vegan":
                     Recipe.VeganRecipe.Builder veganBuilder = new Recipe.VeganRecipe.Builder(title, ingredients, imageResourceId);
                     ArrayList<String> proteinSources = extras.getStringArrayList("proteinSources");
@@ -88,13 +93,13 @@ public class RecipeDetail extends AppCompatActivity {
                     return veganBuilder.build();
                 case "lowSugar":
                     return new Recipe.LowSugarRecipe.Builder(title, ingredients, imageResourceId)
-                        .sugarContent(extras.getInt("sugarContent", 0))
-                        .withSweetener(extras.getString("sweetener", ""))
-                        .build();
+                            .sugarContent(extras.getInt("sugarContent", 0))
+                            .withSweetener(extras.getString("sweetener", ""))
+                            .build();
                 default:
                     return Recipe.createDetailedRecipe(
-                        title, ingredients, "", "30분", "2인분",
-                        imageResourceId, "보통");
+                            title, ingredients, "", "30분", "2인분",
+                            imageResourceId, "보통");
             }
         }
         return null;
@@ -153,5 +158,24 @@ public class RecipeDetail extends AppCompatActivity {
         steps.add(new CookingStep(2, "재료를 넣고 끓입니다.", R.drawable.default_recipe_image));
         steps.add(new CookingStep(3, "간을 맞춥니다.", R.drawable.default_recipe_image));
         return steps;
+    }
+
+    private void checkMissingIngredients(Recipe recipe) {
+        List<String> missingIngredients = new ArrayList<>();
+        for (String ingredient : recipe.getIngredients().split(",")) {
+            // 정규식으로 재료 이름만 추출
+            String cleanIngredient = ingredient.replaceAll("[^가-힣a-zA-Z ]", "").trim().split(" ")[0];
+            if (!SmartRefrigerator.hasIngredient(cleanIngredient.toLowerCase())) {
+                missingIngredients.add(cleanIngredient);
+            }
+        }
+
+        if (missingIngredients.isEmpty()) {
+            missingIngredientsView.setText("모든 재료가 냉장고에 있습니다.");
+        } else {
+            // 쉼표로 구분하여 부족한 재료 문자열 생성
+            String missingText = String.join(", ", missingIngredients);
+            missingIngredientsView.setText("부족한 재료: " + missingText);
+        }
     }
 }
