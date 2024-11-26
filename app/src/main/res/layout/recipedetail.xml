@@ -76,6 +76,16 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/missingIngredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:textColor="#FF0606"
+                android:padding="5dp"
+                android:layout_marginTop="5dp"
+                android:text="부족한 재료 정보가 여기에 표시됩니다." />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
