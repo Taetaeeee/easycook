@@ -1,5 +1,7 @@
 package com.example.easycooks;
 
+import com.example.easycooks.data.DummyRecipeData;
+
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -52,16 +54,17 @@ public class RecipeDetail extends AppCompatActivity {
     }
 
     private Recipe getRecipeFromIntent() {
-        // Intent에서 레시피 정보 가져오기
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            String title = extras.getString("title", "");
-            String ingredients = extras.getString("ingredients", "");
-            int imageResourceId = extras.getInt("imageResourceId", 0);
-            String cookingTime = extras.getString("cookingTime", "");
-            String difficulty = extras.getString("difficulty", "");
-
-            return new Recipe(title, ingredients, "", cookingTime, "2인분", imageResourceId, difficulty);
+            return Recipe.createDetailedRecipe(
+                extras.getString("title", ""),
+                extras.getString("ingredients", ""),
+                extras.getString("description", ""),
+                extras.getString("cookingTime", ""),
+                extras.getString("servings", "2인분"),
+                extras.getInt("imageResourceId", 0),
+                extras.getString("difficulty", "")
+            );
         }
         return null;
     }

@@ -9,19 +9,7 @@ public class Recipe {
     private int imageResourceId;
     private String difficulty;
 
-    public Recipe(String title, String ingredients, int imageResourceId) {
-        this.title = title;
-        this.ingredients = ingredients;
-        this.imageResourceId = imageResourceId;
-        this.description = "";
-        this.cookingTime = "";
-        this.servings = "";
-        this.difficulty = "";
-    }
-
-    public Recipe(String title, String ingredients, String description,
-            String cookingTime, String servings, int imageResourceId,
-            String difficulty) {
+    private Recipe(String title, String ingredients, String description, String cookingTime, String servings, int imageResourceId, String difficulty) {
         this.title = title;
         this.ingredients = ingredients;
         this.description = description;
@@ -29,6 +17,18 @@ public class Recipe {
         this.servings = servings;
         this.imageResourceId = imageResourceId;
         this.difficulty = difficulty;
+    }
+
+    //팩토리 패턴 적용.
+    public static Recipe createBasicRecipe(String title, String ingredients, int imageResourceId) {
+        return new Recipe(title, ingredients, "", "", "", imageResourceId, "");
+    }
+
+    public static Recipe createDetailedRecipe(String title, String ingredients, 
+            String description, String cookingTime, String servings, 
+            int imageResourceId, String difficulty) {
+        return new Recipe(title, ingredients, description, cookingTime, 
+                servings, imageResourceId, difficulty);
     }
 
     // Getters
@@ -89,3 +89,4 @@ public class Recipe {
         this.difficulty = difficulty;
     }
 }
+

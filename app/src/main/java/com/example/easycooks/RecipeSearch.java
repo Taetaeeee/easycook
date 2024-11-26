@@ -1,5 +1,7 @@
 package com.example.easycooks;
 
+import com.example.easycooks.data.DummyRecipeData;
+
 import android.os.Bundle;
 import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
@@ -26,6 +28,13 @@ public class RecipeSearch extends AppCompatActivity {
         initializeData();
         setupRecyclerView();
         setupSearchView();
+
+        String searchQuery = getIntent().getStringExtra("search_query");
+        if (searchQuery != null && !searchQuery.isEmpty()) {
+            searchView.setQuery(searchQuery, true);
+            searchKeyword.setText(searchQuery);
+            filterRecipes(searchQuery);
+        }
     }
 
     private void initializeViews() {
@@ -35,30 +44,7 @@ public class RecipeSearch extends AppCompatActivity {
     }
 
     private void initializeData() {
-        recipeList = new ArrayList<>();
-
-        // 기본 생성자를 사용한 예시
-        recipeList.add(new Recipe("김치찌개", "김치, 돼지고기, 두부...", R.drawable.default_recipe_image));
-
-        // 전체 정보를 포함한 생성자를 사용한 예시
-        recipeList.add(new Recipe(
-                "김치찌개",
-                "김치 300g, 돼지고기 200g, 두부 1모...",
-                "맛있는 김치찌개 만드는 방법",
-                "30분",
-                "2인분",
-                R.drawable.default_recipe_image,
-                "초급"));
-
-        // 더 많은 레시피 데이터를 여기에 추가할 수 있습니다
-        recipeList.add(new Recipe(
-                "된장찌개",
-                "된장 2큰술, 두부 1모, 애호박 1개...",
-                "건강한 된장찌개 만드는 방법",
-                "20분",
-                "3인분",
-                R.drawable.default_recipe_image,
-                "초급"));
+        recipeList = DummyRecipeData.getDummyRecipes();
     }
 
     private void setupRecyclerView() {

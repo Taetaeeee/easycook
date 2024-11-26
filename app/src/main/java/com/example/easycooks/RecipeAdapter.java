@@ -2,6 +2,7 @@ package com.example.easycooks;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,11 +37,16 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), RecipeDetail.class);
-            intent.putExtra("title", recipe.getTitle());
-            intent.putExtra("ingredients", recipe.getIngredients());
-            intent.putExtra("imageResourceId", recipe.getImageResourceId());
-            intent.putExtra("cookingTime", recipe.getCookingTime());
-            intent.putExtra("difficulty", recipe.getDifficulty());
+            Bundle recipeData = new Bundle();
+            recipeData.putString("title", recipe.getTitle());
+            recipeData.putString("ingredients", recipe.getIngredients());
+            recipeData.putString("description", recipe.getDescription());
+            recipeData.putString("cookingTime", recipe.getCookingTime());
+            recipeData.putString("servings", recipe.getServings());
+            recipeData.putInt("imageResourceId", recipe.getImageResourceId());
+            recipeData.putString("difficulty", recipe.getDifficulty());
+            
+            intent.putExtras(recipeData);
             v.getContext().startActivity(intent);
         });
     }

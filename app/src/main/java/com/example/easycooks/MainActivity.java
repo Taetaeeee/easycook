@@ -1,5 +1,8 @@
 package com.example.easycooks;
 
+import com.example.easycooks.data.DummyRecipeData;
+
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -41,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private void initializeViews() {
         searchView = findViewById(R.id.search);
         recipeRecyclerView = findViewById(R.id.recipeRecyclerView);
-        recipeList = new ArrayList<>();
+        recipeList = DummyRecipeData.getDummyRecipes();
     }
 
     private void setupRecyclerView() {
@@ -54,27 +57,17 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchRecipes(query);
+                // RecipeSearch 액티비티로 이동
+                Intent intent = new Intent(MainActivity.this, RecipeSearch.class);
+                intent.putExtra("search_query", query);
+                startActivity(intent);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // 실시간 검색을 원한다면 여기에 searchRecipes(newText) 추가
                 return true;
             }
         });
-    }
-
-    private void searchRecipes(String query) {
-        // TODO: 실제 검색 로직 구현
-        // 예시: API 호출 또는 로컬 데이터베이스 검색
-        // searchResults를 받아서 recipeList를 업데이트하고 어댑터에 알림
-
-        // 임시 테스트 데이터
-        recipeList.clear();
-        recipeList.add(new Recipe("김치찌개 레시피", "김치, 돼지고기, 두부...", android.R.drawable.ic_menu_gallery));
-        recipeList.add(new Recipe("된장찌개 레시피", "된장, 두부, 애호박...", android.R.drawable.ic_menu_gallery));
-        recipeAdapter.notifyDataSetChanged();
     }
 }

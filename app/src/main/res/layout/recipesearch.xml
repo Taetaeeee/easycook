@@ -26,7 +26,7 @@
             android:id="@+id/searchKeyword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="검색한 레시피"
+            android:text=""
             android:textSize="18sp"
             android:textStyle="bold"/>
         <TextView
