@@ -17,12 +17,12 @@ public class RecipeSearch extends AppCompatActivity {
     private SearchView searchView;
     private TextView searchKeyword;
     private List<? extends IRecipe> recipeList;
-    
+
     // 검색 전략 인터페이스
     private interface SearchStrategy {
         List<? extends IRecipe> search(List<? extends IRecipe> recipeList, String query);
     }
-    
+
     // 제목 검색 전략
     private class TitleSearchStrategy implements SearchStrategy {
         @Override
@@ -41,7 +41,7 @@ public class RecipeSearch extends AppCompatActivity {
             return filteredList;
         }
     }
-    
+
     // 재료 검색 전략
     private class IngredientSearchStrategy implements SearchStrategy {
         @Override
@@ -60,7 +60,7 @@ public class RecipeSearch extends AppCompatActivity {
             return filteredList;
         }
     }
-    
+
     private SearchStrategy searchStrategy;
 
     @Override
@@ -73,7 +73,7 @@ public class RecipeSearch extends AppCompatActivity {
         initializeData();
         setupRecyclerView();
         setupSearchView();
-        
+
         // 기본 검색 전략을 제목 검색으로 설정
         searchStrategy = new TitleSearchStrategy();
 
@@ -122,7 +122,7 @@ public class RecipeSearch extends AppCompatActivity {
         List<? extends IRecipe> filteredList = searchStrategy.search(recipeList, query);
         recipeAdapter.updateList(filteredList);
     }
-    
+
     // 검색 전략 변경 메소드
     private void setSearchStrategy(SearchStrategy strategy) {
         this.searchStrategy = strategy;
