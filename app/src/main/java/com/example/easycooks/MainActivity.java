@@ -1,6 +1,5 @@
 package com.example.easycooks;
 
-import com.example.easycooks.data.DummyRecipeData;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,7 +18,7 @@ import androidx.core.graphics.Insets;
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recipeRecyclerView;
     private RecipeAdapter recipeAdapter;
-    private List<Recipe> recipeList;
+    private List<? extends Recipe> recipeList;
     private SearchView searchView;
 
     @Override

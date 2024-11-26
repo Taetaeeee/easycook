@@ -1,6 +1,5 @@
 package com.example.easycooks;
 
-import com.example.easycooks.data.DummyRecipeData;
 
 import android.os.Bundle;
 import android.widget.TextView;
@@ -17,7 +16,52 @@ public class RecipeSearch extends AppCompatActivity {
     private RecipeAdapter recipeAdapter;
     private SearchView searchView;
     private TextView searchKeyword;
-    private List<Recipe> recipeList;
+    private List<? extends IRecipe> recipeList;
+    
+    // 검색 전략 인터페이스
+    private interface SearchStrategy {
+        List<? extends IRecipe> search(List<? extends IRecipe> recipeList, String query);
+    }
+    
+    // 제목 검색 전략
+    private class TitleSearchStrategy implements SearchStrategy {
+        @Override
+        public List<? extends IRecipe> search(List<? extends IRecipe> recipeList, String query) {
+            List<IRecipe> filteredList = new ArrayList<>();
+            if (query == null || query.isEmpty()) {
+                filteredList.addAll((List<IRecipe>) recipeList);
+            } else {
+                String lowerQuery = query.toLowerCase().trim();
+                for (IRecipe recipe : recipeList) {
+                    if (recipe.getTitle().toLowerCase().contains(lowerQuery)) {
+                        filteredList.add(recipe);
+                    }
+                }
+            }
+            return filteredList;
+        }
+    }
+    
+    // 재료 검색 전략
+    private class IngredientSearchStrategy implements SearchStrategy {
+        @Override
+        public List<? extends IRecipe> search(List<? extends IRecipe> recipeList, String query) {
+            List<IRecipe> filteredList = new ArrayList<>();
+            if (query == null || query.isEmpty()) {
+                filteredList.addAll((List<IRecipe>) recipeList);
+            } else {
+                String lowerQuery = query.toLowerCase().trim();
+                for (IRecipe recipe : recipeList) {
+                    if (recipe.getIngredients().toLowerCase().contains(lowerQuery)) {
+                        filteredList.add(recipe);
+                    }
+                }
+            }
+            return filteredList;
+        }
+    }
+    
+    private SearchStrategy searchStrategy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +73,9 @@ public class RecipeSearch extends AppCompatActivity {
         initializeData();
         setupRecyclerView();
         setupSearchView();
+        
+        // 기본 검색 전략을 제목 검색으로 설정
+        searchStrategy = new TitleSearchStrategy();
 
         String searchQuery = getIntent().getStringExtra("search_query");
         if (searchQuery != null && !searchQuery.isEmpty()) {
@@ -72,19 +119,12 @@ public class RecipeSearch extends AppCompatActivity {
     }
 
     private void filterRecipes(String query) {
-        List<Recipe> filteredList = new ArrayList<>();
-        if (query == null || query.isEmpty()) {
-            filteredList.addAll(recipeList); //검색어 비어있으면 전체표시
-        } else {
-            String lowerQuery = query.toLowerCase().trim(); //검색어를 소문자로 변환
-            
-            //제목으로만 검색
-            for (Recipe recipe : recipeList) {
-                if (recipe.getTitle().toLowerCase().contains(lowerQuery)) {
-                    filteredList.add(recipe);
-                }
-            }
-        }
+        List<? extends IRecipe> filteredList = searchStrategy.search(recipeList, query);
         recipeAdapter.updateList(filteredList);
+    }
+    
+    // 검색 전략 변경 메소드
+    private void setSearchStrategy(SearchStrategy strategy) {
+        this.searchStrategy = strategy;
     }
 }

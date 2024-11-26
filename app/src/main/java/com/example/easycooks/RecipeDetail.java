@@ -1,6 +1,5 @@
 package com.example.easycooks;
 
-import com.example.easycooks.data.DummyRecipeData;
 
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -56,15 +55,47 @@ public class RecipeDetail extends AppCompatActivity {
     private Recipe getRecipeFromIntent() {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            return Recipe.createDetailedRecipe(
-                extras.getString("title", ""),
-                extras.getString("ingredients", ""),
-                extras.getString("description", ""),
-                extras.getString("cookingTime", ""),
-                extras.getString("servings", "2인분"),
-                extras.getInt("imageResourceId", 0),
-                extras.getString("difficulty", "")
-            );
+            String title = extras.getString("title", "");
+            String ingredients = extras.getString("ingredients", "");
+            int imageResourceId = extras.getInt("imageResourceId", 0);
+            
+            switch(extras.getString("recipeType", "")) {
+                case "korean":
+                    return new Recipe.KoreanRecipe.Builder(title, ingredients, imageResourceId)
+                        .spicyLevel(extras.getString("spicyLevel", "보통"))
+                        .build();
+                case "diet":
+                    return new Recipe.DietRecipe.Builder(title, ingredients, imageResourceId)
+                        .calories(extras.getInt("calories", 0))
+                        .protein(extras.getInt("protein", 0))
+                        .build();
+                case "lowSalt":
+                    return new Recipe.LowSaltRecipe.Builder(title, ingredients, imageResourceId)
+                        .sodiumContent(extras.getInt("sodiumContent", 0))
+                        .withSaltSubstitute(extras.getString("saltAlternative", ""))
+                        .build();
+                case "vegan":
+                    Recipe.VeganRecipe.Builder veganBuilder = new Recipe.VeganRecipe.Builder(title, ingredients, imageResourceId);
+                    ArrayList<String> proteinSources = extras.getStringArrayList("proteinSources");
+                    if (proteinSources != null) {
+                        for (String source : proteinSources) {
+                            veganBuilder.addProteinSource(source);
+                        }
+                    }
+                    if (extras.getBoolean("isRawVegan", false)) {
+                        veganBuilder.setRawVegan();
+                    }
+                    return veganBuilder.build();
+                case "lowSugar":
+                    return new Recipe.LowSugarRecipe.Builder(title, ingredients, imageResourceId)
+                        .sugarContent(extras.getInt("sugarContent", 0))
+                        .withSweetener(extras.getString("sweetener", ""))
+                        .build();
+                default:
+                    return Recipe.createDetailedRecipe(
+                        title, ingredients, "", "30분", "2인분",
+                        imageResourceId, "보통");
+            }
         }
         return null;
     }
@@ -87,6 +118,15 @@ public class RecipeDetail extends AppCompatActivity {
 
         // 영양 정보 설정 (예시)
         nutritionInfo.setText("칼로리: 300kcal\n단백질: 20g\n탄수화물: 30g\n지방: 10g");
+
+        // 레시피 타입별 추가 정보 표시
+        if (recipe instanceof Recipe.KoreanRecipe) {
+            Recipe.KoreanRecipe koreanRecipe = (Recipe.KoreanRecipe) recipe;
+            // 한식 특화 정보 표시
+        } else if (recipe instanceof Recipe.DietRecipe) {
+            Recipe.DietRecipe dietRecipe = (Recipe.DietRecipe) recipe;
+            // 다이어트 특화 정보 표시
+        }
     }
 
     private String formatIngredients(String ingredients) {

@@ -10,13 +10,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
-    private List<Recipe> recipes;
+    private List<? extends IRecipe> recipes;
     private Context context;
 
-    public RecipeAdapter(List<Recipe> recipes) {
+    public RecipeAdapter(List<? extends IRecipe> recipes) {
         this.recipes = recipes;
     }
 
@@ -30,7 +31,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
     @Override
     public void onBindViewHolder(@NonNull RecipeViewHolder holder, int position) {
-        Recipe recipe = recipes.get(position);
+        IRecipe recipe = recipes.get(position);
         holder.titleTextView.setText(recipe.getTitle());
         holder.ingredientsTextView.setText(recipe.getIngredients());
         holder.recipeImage.setImageResource(recipe.getImageResourceId());
@@ -40,11 +41,34 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             Bundle recipeData = new Bundle();
             recipeData.putString("title", recipe.getTitle());
             recipeData.putString("ingredients", recipe.getIngredients());
-            recipeData.putString("description", recipe.getDescription());
-            recipeData.putString("cookingTime", recipe.getCookingTime());
-            recipeData.putString("servings", recipe.getServings());
             recipeData.putInt("imageResourceId", recipe.getImageResourceId());
-            recipeData.putString("difficulty", recipe.getDifficulty());
+            
+            if (recipe instanceof Recipe.KoreanRecipe) {
+                Recipe.KoreanRecipe koreanRecipe = (Recipe.KoreanRecipe) recipe;
+                recipeData.putString("recipeType", "korean");
+                recipeData.putString("spicyLevel", koreanRecipe.getSpicyLevel());
+            } else if (recipe instanceof Recipe.DietRecipe) {
+                Recipe.DietRecipe dietRecipe = (Recipe.DietRecipe) recipe;
+                recipeData.putString("recipeType", "diet");
+                recipeData.putInt("calories", dietRecipe.getCalories());
+                recipeData.putInt("protein", dietRecipe.getProtein());
+            } else if (recipe instanceof Recipe.LowSaltRecipe) {
+                Recipe.LowSaltRecipe lowSaltRecipe = (Recipe.LowSaltRecipe) recipe;
+                recipeData.putString("recipeType", "lowSalt");
+                recipeData.putInt("sodiumContent", lowSaltRecipe.getSodiumContent());
+                recipeData.putString("saltAlternative", lowSaltRecipe.getSaltAlternative());
+            } else if (recipe instanceof Recipe.VeganRecipe) {
+                Recipe.VeganRecipe veganRecipe = (Recipe.VeganRecipe) recipe;
+                recipeData.putString("recipeType", "vegan");
+                recipeData.putStringArrayList("proteinSources", 
+                    new ArrayList<>(veganRecipe.getVeganProteinSources()));
+                recipeData.putBoolean("isRawVegan", veganRecipe.isRawVegan());
+            } else if (recipe instanceof Recipe.LowSugarRecipe) {
+                Recipe.LowSugarRecipe lowSugarRecipe = (Recipe.LowSugarRecipe) recipe;
+                recipeData.putString("recipeType", "lowSugar");
+                recipeData.putInt("sugarContent", lowSugarRecipe.getSugarContent());
+                recipeData.putString("sweetener", lowSugarRecipe.getSweetener());
+            }
             
             intent.putExtras(recipeData);
             v.getContext().startActivity(intent);
@@ -56,7 +80,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         return recipes.size();
     }
 
-    public void updateList(List<Recipe> newList) {
+    public void updateList(List<? extends IRecipe> newList) {
         recipes = newList;
         notifyDataSetChanged();
     }
