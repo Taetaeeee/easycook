@@ -1,6 +1,5 @@
 package com.example.easycooks;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -27,6 +26,9 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        // SmartRefrigerator 초기화 추가
+        SmartRefrigerator.initialize(getApplicationContext());
+
         // 초기화
         initializeViews();
         setupRecyclerView();
@@ -44,6 +46,12 @@ public class MainActivity extends AppCompatActivity {
         searchView = findViewById(R.id.search);
         recipeRecyclerView = findViewById(R.id.recipeRecyclerView);
         recipeList = DummyRecipeData.getDummyRecipes();
+
+        // 냉장고 버튼 클릭 리스너 추가
+        findViewById(R.id.myFridgeButton).setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, MyFridge.class);
+            startActivity(intent);
+        });
     }
 
     private void setupRecyclerView() {
