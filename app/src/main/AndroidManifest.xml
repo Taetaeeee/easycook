@@ -23,6 +23,7 @@
         </activity>
         <activity android:name=".RecipeDetail"/>
         <activity android:name=".MyFridge" android:exported="false"/>
+        <activity android:name=".FavoriteRecipesActivity" android:exported="false"/>
     </application>
 
 </manifest>

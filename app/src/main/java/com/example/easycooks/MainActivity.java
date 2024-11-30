@@ -196,8 +196,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void showIngredientFilters(List<String> ingredients) {
         filterAdapter = new IngredientFilterAdapter(ingredients,
-                selectedIngredients -> {
-                    applyAllFilters();
+                new IngredientFilterAdapter.OnIngredientFilterListener() {
+                    @Override
+                    public void onIngredientSelected(Set<String> selectedIngredients) {
+                        applyAllFilters();
+                    }
+
+                    @Override
+                    public void onIngredientRemoved(String ingredient) {
+                        // 기본 재료 목록에서 제거된 재료 삭제
+                        defaultIngredients = new ArrayList<>(defaultIngredients);
+                        defaultIngredients.remove(ingredient);
+                    }
                 });
         ingredientFilterRecyclerView.setAdapter(filterAdapter);
         ingredientFilterRecyclerView.setVisibility(View.VISIBLE);

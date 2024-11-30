@@ -8,5 +8,7 @@
     android:layout_margin="4dp"
     app:chipBackgroundColor="@android:color/white"
     app:checkedIconVisible="true"
+    app:closeIconVisible="true"
+    app:closeIconEnabled="true"
     android:checkable="true"
     style="@style/Widget.MaterialComponents.Chip.Filter" /> 

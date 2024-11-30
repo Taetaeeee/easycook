@@ -1,5 +1,6 @@
 package com.example.easycooks;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -13,6 +14,7 @@ public class MyFridge extends AppCompatActivity {
     private EditText ingredientInput;
     private ListView ingredientsList;
     private ArrayAdapter<String> adapter;
+    private Button favoriteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +23,7 @@ public class MyFridge extends AppCompatActivity {
 
         ingredientInput = findViewById(R.id.ingredientInput);
         ingredientsList = findViewById(R.id.ingredientsList);
-        Button addButton = findViewById(R.id.addButton);
+        favoriteButton = findViewById(R.id.favoriteButton);
 
         // 어댑터 초기화
         adapter = new ArrayAdapter<>(this,
@@ -29,7 +31,14 @@ public class MyFridge extends AppCompatActivity {
                 new ArrayList<>(SmartRefrigerator.getFridgeIngredients()));
         ingredientsList.setAdapter(adapter);
 
+        // 즐겨찾기 버튼 클릭 리스너
+        favoriteButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MyFridge.this, FavoriteRecipesActivity.class);
+            startActivity(intent);
+        });
+
         // 재료 추가 버튼
+        Button addButton = findViewById(R.id.addButton);
         addButton.setOnClickListener(v -> {
             String ingredient = ingredientInput.getText().toString().trim();
             if (!ingredient.isEmpty()) {

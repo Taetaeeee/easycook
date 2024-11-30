@@ -1,31 +1,14 @@
 package com.example.easycooks;
 
-
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextUtils;
-import android.text.style.ClickableSpan;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ImageButton;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +22,8 @@ public class RecipeDetail extends AppCompatActivity {
     private RecyclerView cookingStepsRecyclerView;
     private CookingStepsAdapter cookingStepsAdapter;
     private TextView missingIngredientsView;
-    private List<CookingStep> cookingSteps;
+    private ImageButton favoriteButton;
+    private Recipe currentRecipe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,27 +34,21 @@ public class RecipeDetail extends AppCompatActivity {
         initializeViews();
 
         // Intent에서 레시피 정보 가져오기
-        Recipe recipe = getRecipeFromIntent();
+        currentRecipe = getRecipeFromIntent();
 
         // 레시피 정보 표시
-        if (recipe != null) {
-            String recipeId = recipe.getTitle(); // 레시피 제목을 고유 ID로 사용
-            loadCookingSteps(recipeId);          // 고유 ID로 저장된 데이터 로드
-            displayRecipeDetails(recipe);
+        if (currentRecipe != null) {
+            displayRecipeDetails(currentRecipe);
         }
 
         // 조리 순서 설정
         setupCookingSteps();
 
         // 부족한 재료를 확인하고 화면에 표시
-        checkMissingIngredients(recipe);
+        checkMissingIngredients(currentRecipe);
 
-        // 추가 버튼 클릭 이벤트 설정
-        Button addStepButton = findViewById(R.id.addStepButton);
-        addStepButton.setOnClickListener(v -> {
-            showAddStepDialog();
-            saveCookingSteps(recipe.getTitle()); // 고유 ID로 데이터 저장
-        });
+        // 즐겨찾기 버튼 설정
+        setupFavoriteButton();
     }
 
     private void initializeViews() {
@@ -107,7 +85,8 @@ public class RecipeDetail extends AppCompatActivity {
                             .withSaltSubstitute(extras.getString("saltAlternative", ""))
                             .build();
                 case "vegan":
-                    Recipe.VeganRecipe.Builder veganBuilder = new Recipe.VeganRecipe.Builder(title, ingredients, imageResourceId);
+                    Recipe.VeganRecipe.Builder veganBuilder = new Recipe.VeganRecipe.Builder(title, ingredients,
+                            imageResourceId);
                     ArrayList<String> proteinSources = extras.getStringArrayList("proteinSources");
                     if (proteinSources != null) {
                         for (String source : proteinSources) {
@@ -172,18 +151,12 @@ public class RecipeDetail extends AppCompatActivity {
     }
 
     private void setupCookingSteps() {
-        if (cookingSteps == null) {
-            cookingSteps = new ArrayList<>();
-        }
-        cookingSteps.add(new CookingStep(1, "물을 끓입니다.", R.drawable.default_recipe_image));
-        cookingSteps.add(new CookingStep(2, "재료를 넣고 끓입니다.", R.drawable.default_recipe_image));
-        cookingSteps.add(new CookingStep(3, "간을 맞춥니다.", R.drawable.default_recipe_image));
-
-        cookingStepsAdapter = new CookingStepsAdapter(cookingSteps);
+        // 조리 순서 RecyclerView 설정
         cookingStepsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        List<CookingStep> cookingSteps = createCookingSteps();
+        cookingStepsAdapter = new CookingStepsAdapter(cookingSteps);
         cookingStepsRecyclerView.setAdapter(cookingStepsAdapter);
     }
-
 
     private List<CookingStep> createCookingSteps() {
         List<CookingStep> steps = new ArrayList<CookingStep>();
@@ -206,123 +179,26 @@ public class RecipeDetail extends AppCompatActivity {
         if (missingIngredients.isEmpty()) {
             missingIngredientsView.setText("모든 재료가 냉장고에 있습니다.");
         } else {
-            // 부족한 재료를 텍스트에 추가
-            SpannableString spannableString = new SpannableString("부족한 재료: " + TextUtils.join(", ", missingIngredients));
-
-            // "부족한 재료: " 길이를 계산
-            int startIndex = "부족한 재료: ".length();
-
-            for (int i = 0; i < missingIngredients.size(); i++) {
-                String ingredient = missingIngredients.get(i);
-                int endIndex = startIndex + ingredient.length();
-
-                // 각 재료에 클릭 이벤트 설정
-                ClickableSpan clickableSpan = new ClickableSpan() {
-                    @Override
-                    public void onClick(View widget) {
-                        String searchQuery = Uri.encode(ingredient);
-                        String url = "https://www.coupang.com/np/search?component=&q=" + searchQuery;
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        widget.getContext().startActivity(intent);
-                    }
-
-                    @Override
-                    public void updateDrawState(android.text.TextPaint ds) {
-                        super.updateDrawState(ds);
-                        ds.setColor(getResources().getColor(android.R.color.holo_red_dark)); // 텍스트 색상
-                    }
-                };
-
-                // 재료에 클릭 이벤트 추가
-                spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                startIndex = endIndex + 2; // ", " 길이만큼 추가
-            }
-
-            // TextView에 클릭 가능한 텍스트 설정
-            missingIngredientsView.setText(spannableString);
-            missingIngredientsView.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+            // 쉼표로 구분하여 부족한 재료 문자열 생성
+            String missingText = String.join(", ", missingIngredients);
+            missingIngredientsView.setText("부족한 재료: " + missingText);
         }
     }
 
-    private void showAddStepDialog() {
-        // AlertDialog.Builder를 사용하여 다이얼로그 생성
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("나만의 레시피 추가");
+    private void setupFavoriteButton() {
+        favoriteButton = findViewById(R.id.favoriteButton);
+        updateFavoriteButtonState();
 
-        // 다이얼로그 레이아웃 설정
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_step, null);
-        builder.setView(dialogView);
-
-        // 레이아웃의 입력 필드 참조
-        EditText stepNumberInput = dialogView.findViewById(R.id.stepNumberInput);
-        EditText descriptionInput = dialogView.findViewById(R.id.descriptionInput);
-
-        // "추가" 버튼 동작
-        builder.setPositiveButton("추가", (dialog, which) -> {
-            String stepNumberText = stepNumberInput.getText().toString().trim();
-            String descriptionText = descriptionInput.getText().toString().trim();
-
-            if (!stepNumberText.isEmpty() && !descriptionText.isEmpty()) {
-                int stepNumber = Integer.parseInt(stepNumberText);
-
-                // Step 찾기 또는 추가
-                boolean stepExists = false;
-                for (CookingStep step : cookingSteps) {
-                    if (step.getStepNumber() == stepNumber) {
-                        step.setDescription(step.getDescription() + "\n" + descriptionText);
-                        stepExists = true;
-                        break;
-                    }
-                }
-                if (!stepExists) {
-                    cookingSteps.add(new CookingStep(stepNumber, descriptionText, R.drawable.default_recipe_image));
-                }
-
-                // RecyclerView 업데이트
-                cookingStepsAdapter.notifyDataSetChanged();
-
-                // 조리 단계 저장 (추가된 내용 반영)
-                Recipe recipe = getRecipeFromIntent();
-                if (recipe != null) {
-                    saveCookingSteps(recipe.getTitle());
-                }
-            } else {
-                Toast.makeText(this, "모든 항목을 입력하세요.", Toast.LENGTH_SHORT).show();
-            }
+        favoriteButton.setOnClickListener(v -> {
+            SmartRefrigerator.toggleFavorite(currentRecipe.getTitle());
+            updateFavoriteButtonState();
         });
-
-        // "취소" 버튼 동작
-        builder.setNegativeButton("취소", (dialog, which) -> dialog.cancel());
-
-        // 다이얼로그 표시
-        builder.show();
     }
 
-    private void saveCookingSteps(String recipeId) {
-        SharedPreferences prefs = getSharedPreferences("RecipeDetailPrefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-
-        // 조리 단계 데이터를 JSON 문자열로 변환
-        Gson gson = new Gson();
-        String jsonSteps = gson.toJson(cookingSteps);
-
-        // 레시피 ID를 키로 사용하여 저장
-        editor.putString("CookingSteps_" + recipeId, jsonSteps);
-        editor.apply();
-    }
-
-    private void loadCookingSteps(String recipeId) {
-        SharedPreferences prefs = getSharedPreferences("RecipeDetailPrefs", MODE_PRIVATE);
-
-        // JSON 문자열로 저장된 조리 단계 불러오기
-        String jsonSteps = prefs.getString("CookingSteps_" + recipeId, null);
-
-        if (jsonSteps != null) {
-            Gson gson = new Gson();
-            Type type = new TypeToken<List<CookingStep>>() {}.getType();
-            cookingSteps = gson.fromJson(jsonSteps, type);
-        } else {
-            cookingSteps = new ArrayList<>();
+    private void updateFavoriteButtonState() {
+        if (currentRecipe != null) {
+            boolean isFavorite = SmartRefrigerator.isFavorite(currentRecipe.getTitle());
+            favoriteButton.setImageResource(isFavorite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
         }
     }
 }

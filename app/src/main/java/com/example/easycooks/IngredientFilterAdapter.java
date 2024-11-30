@@ -21,6 +21,8 @@ public class IngredientFilterAdapter extends RecyclerView.Adapter<IngredientFilt
 
     public interface OnIngredientFilterListener {
         void onIngredientSelected(Set<String> selectedIngredients);
+
+        void onIngredientRemoved(String ingredient);
     }
 
     public IngredientFilterAdapter(List<String> ingredients, OnIngredientFilterListener listener) {
@@ -50,6 +52,17 @@ public class IngredientFilterAdapter extends RecyclerView.Adapter<IngredientFilt
             }
             listener.onIngredientSelected(selectedIngredients);
         });
+
+        holder.ingredientChip.setOnCloseIconClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION) {
+                selectedIngredients.remove(ingredient);
+                ingredients.remove(pos);
+                notifyItemRemoved(pos);
+                listener.onIngredientRemoved(ingredient);
+                listener.onIngredientSelected(selectedIngredients);
+            }
+        });
     }
 
     @Override
@@ -64,6 +77,15 @@ public class IngredientFilterAdapter extends RecyclerView.Adapter<IngredientFilt
 
     public List<String> getSelectedIngredients() {
         return new ArrayList<>(selectedIngredients);
+    }
+
+    public void removeIngredient(String ingredient) {
+        int position = ingredients.indexOf(ingredient);
+        if (position != -1) {
+            ingredients.remove(position);
+            selectedIngredients.remove(ingredient);
+            notifyItemRemoved(position);
+        }
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
