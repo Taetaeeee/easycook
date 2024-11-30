@@ -6,23 +6,35 @@ import java.util.List;
 // IRecipe 인터페이스를 파일 최상단으로 이동
 interface IRecipe {
     String getTitle();
+
     String getIngredients();
+
     String getDescription();
+
     String getCookingTime();
+
     String getServings();
+
     int getImageResourceId();
+
     String getDifficulty();
-    
+
     void setTitle(String title);
+
     void setIngredients(String ingredients);
+
     void setDescription(String description);
+
     void setCookingTime(String cookingTime);
+
     void setServings(String servings);
+
     void setImageResourceId(int imageResourceId);
+
     void setDifficulty(String difficulty);
 }
 
-public abstract class Recipe implements IRecipe {
+public class Recipe implements IRecipe {
     private String title;
     private String ingredients;
     private String description;
@@ -31,8 +43,8 @@ public abstract class Recipe implements IRecipe {
     private int imageResourceId;
     private String difficulty;
 
-    protected Recipe(String title, String ingredients, String description, 
-    String cookingTime, String servings, int imageResourceId, String difficulty) {
+    public Recipe(String title, String ingredients, String description,
+            String cookingTime, String servings, int imageResourceId, String difficulty) {
         this.title = title;
         this.ingredients = ingredients;
         this.description = description;
@@ -52,22 +64,27 @@ public abstract class Recipe implements IRecipe {
     public String getIngredients() {
         return ingredients;
     }
+
     @Override
     public String getDescription() {
         return description;
     }
+
     @Override
     public String getCookingTime() {
         return cookingTime;
     }
+
     @Override
     public String getServings() {
         return servings;
     }
+
     @Override
     public int getImageResourceId() {
         return imageResourceId;
     }
+
     @Override
     public String getDifficulty() {
         return difficulty;
@@ -78,26 +95,32 @@ public abstract class Recipe implements IRecipe {
     public void setTitle(String title) {
         this.title = title;
     }
+
     @Override
     public void setIngredients(String ingredients) {
         this.ingredients = ingredients;
     }
+
     @Override
     public void setDescription(String description) {
         this.description = description;
     }
+
     @Override
     public void setCookingTime(String cookingTime) {
         this.cookingTime = cookingTime;
     }
+
     @Override
     public void setServings(String servings) {
         this.servings = servings;
     }
+
     @Override
     public void setImageResourceId(int imageResourceId) {
         this.imageResourceId = imageResourceId;
     }
+
     @Override
     public void setDifficulty(String difficulty) {
         this.difficulty = difficulty;
@@ -108,16 +131,17 @@ public abstract class Recipe implements IRecipe {
             String cookingTime, String servings, int imageResourceId,
             String difficulty) {
         return new Recipe(title, ingredients, description, cookingTime,
-                servings, imageResourceId, difficulty) {};
+                servings, imageResourceId, difficulty) {
+        };
     }
 
-        // 한식 레시피 내부 클래스
+    // 한식 레시피 내부 클래스
     static class KoreanRecipe extends Recipe {
         private String spicyLevel;
         private boolean containsKimchi;
 
         private KoreanRecipe(String title, String ingredients, String description,
-                String cookingTime, String servings, int imageResourceId, 
+                String cookingTime, String servings, int imageResourceId,
                 String difficulty, String spicyLevel, boolean containsKimchi) {
             super(title, ingredients, description, cookingTime, servings, imageResourceId, difficulty);
             this.spicyLevel = spicyLevel;
@@ -424,5 +448,3 @@ public abstract class Recipe implements IRecipe {
         }
     }
 }
-
-

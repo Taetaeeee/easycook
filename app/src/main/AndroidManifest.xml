@@ -22,7 +22,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".RecipeDetail"/>
-        <activity android:name=".RecipeSearch"/>
         <activity android:name=".MyFridge" android:exported="false"/>
     </application>
 

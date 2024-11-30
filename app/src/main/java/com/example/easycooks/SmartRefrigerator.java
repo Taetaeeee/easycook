@@ -12,10 +12,13 @@ public class SmartRefrigerator {
     private static final String PREF_NAME = "FridgePreferences";
     private static final String KEY_INGREDIENTS = "ingredients";
     private static Context context;
+    private static Set<String> favorites = new HashSet<>();
+    private static final String KEY_FAVORITES = "favorites";
 
     public static void initialize(Context appContext) {
         context = appContext.getApplicationContext();
         loadIngredients();
+        loadFavorites();
     }
 
     private static void loadIngredients() {
@@ -35,6 +38,11 @@ public class SmartRefrigerator {
         } else {
             fridgeIngredients = new ArrayList<>(savedIngredients);
         }
+    }
+
+    private static void loadFavorites() {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        favorites = new HashSet<>(prefs.getStringSet(KEY_FAVORITES, new HashSet<>()));
     }
 
     private static void saveIngredients() {
@@ -61,5 +69,23 @@ public class SmartRefrigerator {
     public static void removeIngredient(String ingredient) {
         fridgeIngredients.remove(ingredient.toLowerCase());
         saveIngredients();
+    }
+
+    public static boolean isFavorite(String recipeTitle) {
+        return favorites.contains(recipeTitle);
+    }
+
+    public static void toggleFavorite(String recipeTitle) {
+        if (favorites.contains(recipeTitle)) {
+            favorites.remove(recipeTitle);
+        } else {
+            favorites.add(recipeTitle);
+        }
+        saveFavorites();
+    }
+
+    private static void saveFavorites() {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putStringSet(KEY_FAVORITES, favorites).apply();
     }
 }
