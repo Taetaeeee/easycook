@@ -22,4 +22,8 @@ public class CookingStep {
     public int getImageResourceId() {
         return imageResourceId;
     }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }
