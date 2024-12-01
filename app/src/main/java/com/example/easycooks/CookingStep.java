@@ -26,4 +26,8 @@ public class CookingStep {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public void setStepNumber(int stepNumber) {
+        this.stepNumber = stepNumber;
+    }
 }

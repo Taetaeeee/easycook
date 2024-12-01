@@ -447,4 +447,19 @@ public class Recipe implements IRecipe {
             return sweetener;
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Recipe recipe = (Recipe) o;
+        return title.equals(recipe.title);
+    }
+
+    @Override
+    public int hashCode() {
+        return title.hashCode();
+    }
 }

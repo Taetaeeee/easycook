@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
 
         // SmartRefrigerator 초기화 추가
         SmartRefrigerator.initialize(getApplicationContext());
+        // 저장된 커스텀 레시피 로드
+        DummyRecipeData.loadCustomRecipes(this);
+        DummyRecipeData.printCustomRecipes();
 
         initializeViews();
         setupRecyclerViews();

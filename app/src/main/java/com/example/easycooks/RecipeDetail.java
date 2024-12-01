@@ -1,13 +1,18 @@
 package com.example.easycooks;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ImageButton;
-
+import android.widget.Button;
+import android.view.View;
+import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.app.AlertDialog;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,34 +29,50 @@ public class RecipeDetail extends AppCompatActivity {
     private TextView missingIngredientsView;
     private ImageButton favoriteButton;
     private Recipe currentRecipe;
+    private Button addStepButton;
+    private List<CookingStep> cookingSteps;
+    private Button saveAsNewButton;
+    private Button deleteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recipedetail);
 
-        // 뷰 초기화
-        initializeViews();
+        // 기본 뷰 초기화
+        initializeBasicViews();
 
         // Intent에서 레시피 정보 가져오기
         currentRecipe = getRecipeFromIntent();
 
-        // 레시피 정보 표시
+        // 레시피가 null이 아닐 때만 나머지 초기화 진행
         if (currentRecipe != null) {
+            // 버시피 정보 표시
             displayRecipeDetails(currentRecipe);
+
+            // 조리 순서 설정
+            setupCookingSteps();
+
+            // 부족한 재료를 확인하고 화면에 표시
+            checkMissingIngredients(currentRecipe);
+
+            // 즐겨찾기 버튼 설정
+            setupFavoriteButton();
+
+            // 버튼 초기화 및 리스너 설정
+            setupButtons();
+
+            // 디버그 로그 추가
+            System.out.println("Current Recipe: " + currentRecipe.getTitle());
+            System.out.println("Is Custom: " + DummyRecipeData.isCustomRecipe(currentRecipe));
+        } else {
+            // 레시피 로드 실패 시 처리
+            Toast.makeText(this, "레시피를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
+            finish();
         }
-
-        // 조리 순서 설정
-        setupCookingSteps();
-
-        // 부족한 재료를 확인하고 화면에 표시
-        checkMissingIngredients(currentRecipe);
-
-        // 즐겨찾기 버튼 설정
-        setupFavoriteButton();
     }
 
-    private void initializeViews() {
+    private void initializeBasicViews() {
         recipeImage = findViewById(R.id.recipeImage);
         recipeTitle = findViewById(R.id.recipeTitle);
         cookingTime = findViewById(R.id.cookingTime);
@@ -60,6 +81,24 @@ public class RecipeDetail extends AppCompatActivity {
         nutritionInfo = findViewById(R.id.nutritionInfo);
         cookingStepsRecyclerView = findViewById(R.id.cookingStepsRecyclerView);
         missingIngredientsView = findViewById(R.id.missingIngredients);
+        addStepButton = findViewById(R.id.addStepButton);
+        saveAsNewButton = findViewById(R.id.saveAsNewButton);
+        deleteButton = findViewById(R.id.deleteButton);
+        favoriteButton = findViewById(R.id.favoriteButton);
+    }
+
+    private void setupButtons() {
+        // 추가 버튼 클릭 리스너 설정
+        addStepButton.setOnClickListener(v -> showAddStepDialog());
+        saveAsNewButton.setOnClickListener(v -> showSaveAsNewDialog());
+
+        // 커스텀 레시피인 경우에만 삭제 버튼 표시
+        if (DummyRecipeData.isCustomRecipe(currentRecipe)) {
+            deleteButton.setVisibility(View.VISIBLE);
+            deleteButton.setOnClickListener(v -> showDeleteConfirmDialog());
+        } else {
+            deleteButton.setVisibility(View.GONE);
+        }
     }
 
     private Recipe getRecipeFromIntent() {
@@ -151,19 +190,10 @@ public class RecipeDetail extends AppCompatActivity {
     }
 
     private void setupCookingSteps() {
-        // 조리 순서 RecyclerView 설정
         cookingStepsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        List<CookingStep> cookingSteps = createCookingSteps();
+        cookingSteps = DummyRecipeData.getRecipeSteps(currentRecipe);
         cookingStepsAdapter = new CookingStepsAdapter(cookingSteps);
         cookingStepsRecyclerView.setAdapter(cookingStepsAdapter);
-    }
-
-    private List<CookingStep> createCookingSteps() {
-        List<CookingStep> steps = new ArrayList<CookingStep>();
-        steps.add(new CookingStep(1, "물을 끓입니다.", R.drawable.default_recipe_image));
-        steps.add(new CookingStep(2, "재료를 넣고 끓입니다.", R.drawable.default_recipe_image));
-        steps.add(new CookingStep(3, "간을 맞춥니다.", R.drawable.default_recipe_image));
-        return steps;
     }
 
     private void checkMissingIngredients(Recipe recipe) {
@@ -179,7 +209,7 @@ public class RecipeDetail extends AppCompatActivity {
         if (missingIngredients.isEmpty()) {
             missingIngredientsView.setText("모든 재료가 냉장고에 있습니다.");
         } else {
-            // 쉼표로 구분하여 부족한 재료 문자열 생성
+            // 표로 구분하여 부족한 재료 문자열 생성
             String missingText = String.join(", ", missingIngredients);
             missingIngredientsView.setText("부족한 재료: " + missingText);
         }
@@ -200,5 +230,112 @@ public class RecipeDetail extends AppCompatActivity {
             boolean isFavorite = SmartRefrigerator.isFavorite(currentRecipe.getTitle());
             favoriteButton.setImageResource(isFavorite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
         }
+    }
+
+    private void showAddStepDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_step, null);
+        EditText stepNumberInput = dialogView.findViewById(R.id.stepNumberInput);
+        EditText descriptionInput = dialogView.findViewById(R.id.descriptionInput);
+
+        // 기본값으로 마지막 단계 + 1을 표시
+        int nextStepNumber = cookingSteps.isEmpty() ? 1 : cookingSteps.size() + 1;
+        stepNumberInput.setText(String.valueOf(nextStepNumber));
+
+        new AlertDialog.Builder(this)
+                .setTitle("조리 순서 추가")
+                .setView(dialogView)
+                .setPositiveButton("추가", (dialog, which) -> {
+                    String stepNumberStr = stepNumberInput.getText().toString();
+                    String description = descriptionInput.getText().toString();
+
+                    if (!stepNumberStr.isEmpty() && !description.isEmpty()) {
+                        int newStepNumber = Integer.parseInt(stepNumberStr);
+
+                        // 입력된 단계 번호가 유효한지 확인
+                        if (newStepNumber <= 0 || newStepNumber > cookingSteps.size() + 1) {
+                            Toast.makeText(this, "유효하지 않은 단계 번호입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // 새로운 단계를 삽입하고 이후 단계들의 번호를 증가
+                        for (int i = cookingSteps.size() - 1; i >= newStepNumber - 1; i--) {
+                            CookingStep step = cookingSteps.get(i);
+                            step.setStepNumber(step.getStepNumber() + 1);
+                        }
+
+                        // 새로운 단계 추가
+                        cookingSteps.add(newStepNumber - 1, new CookingStep(
+                                newStepNumber,
+                                description,
+                                R.drawable.default_recipe_image));
+
+                        // 단계 번호로 정렬
+                        cookingSteps.sort((s1, s2) -> s1.getStepNumber() - s2.getStepNumber());
+
+                        cookingStepsAdapter.notifyDataSetChanged();
+                    }
+                })
+                .setNegativeButton("취소", null)
+                .show();
+    }
+
+    private void showSaveAsNewDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_save_recipe, null);
+        EditText recipeNameInput = dialogView.findViewById(R.id.recipeNameInput);
+
+        // 기존 이름을 기본값으로 설정
+        recipeNameInput.setText(currentRecipe.getTitle() + " (나만의 레시피)");
+
+        new AlertDialog.Builder(this)
+                .setTitle("새 레시피로 저장")
+                .setView(dialogView)
+                .setPositiveButton("저장", (dialog, which) -> {
+                    String newName = recipeNameInput.getText().toString().trim();
+                    if (!newName.isEmpty()) {
+                        saveAsNewRecipe(newName);
+                    }
+                })
+                .setNegativeButton("취소", null)
+                .show();
+    }
+
+    private void saveAsNewRecipe(String newName) {
+        Recipe newRecipe = Recipe.createDetailedRecipe(
+                newName,
+                currentRecipe.getIngredients(),
+                currentRecipe.getDescription(),
+                currentRecipe.getCookingTime(),
+                currentRecipe.getServings(),
+                currentRecipe.getImageResourceId(),
+                currentRecipe.getDifficulty());
+
+        DummyRecipeData.addCustomRecipe(newRecipe, new ArrayList<>(cookingSteps));
+        DummyRecipeData.saveCustomRecipes(this);
+
+        Toast.makeText(this, "새로운 레시피가 저장되었습니다.", Toast.LENGTH_SHORT).show();
+
+        // 메인 화면으로 돌아가기
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
+    }
+
+    private void showDeleteConfirmDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("레시피 삭제")
+                .setMessage("이 레시피를 삭제하시겠습니까?")
+                .setPositiveButton("삭제", (dialog, which) -> {
+                    DummyRecipeData.deleteCustomRecipe(this, currentRecipe);
+                    Toast.makeText(this, "레시피가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+
+                    // 메인 화면으로 돌아가기
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                })
+                .setNegativeButton("취소", null)
+                .show();
     }
 }
