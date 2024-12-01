@@ -17,6 +17,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+// Recipe 관련 import 추가
+import com.example.easycooks.Recipe;
+import com.example.easycooks.IRecipe;
+
 public class RecipeDetail extends AppCompatActivity {
     private ImageView recipeImage;
     private TextView recipeTitle;

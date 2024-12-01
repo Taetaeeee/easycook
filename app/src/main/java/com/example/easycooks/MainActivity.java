@@ -229,24 +229,28 @@ public class MainActivity extends AppCompatActivity {
 
         // 검색어 필터 적용
         if (!currentQuery.isEmpty()) {
-            filteredList = searchRecipes(currentQuery);
+            RecipeFilterStrategy searchStrategy = new SearchFilterStrategy(currentQuery);
+            filteredList = searchStrategy.filter(filteredList);
         }
 
-        // 선택된 재료 필터 적용
+        // 재료 필터 적용
         if (ingredientFilterToggle.isChecked() && filterAdapter != null &&
                 !filterAdapter.getSelectedIngredients().isEmpty()) {
-            filteredList = filterRecipesByIngredients(filteredList,
+            RecipeFilterStrategy ingredientStrategy = new IngredientFilterStrategy(
                     filterAdapter.getSelectedIngredients());
+            filteredList = ingredientStrategy.filter(filteredList);
         }
 
         // 시간 필터 적용
         if (!selectedTimes.isEmpty()) {
-            filteredList = filterRecipesByTime(filteredList);
+            RecipeFilterStrategy timeStrategy = new TimeFilterStrategy(selectedTimes);
+            filteredList = timeStrategy.filter(filteredList);
         }
 
         // 난이도 필터 적용
         if (!selectedDifficulties.isEmpty()) {
-            filteredList = filterRecipesByDifficulty(filteredList);
+            RecipeFilterStrategy difficultyStrategy = new DifficultyFilterStrategy(selectedDifficulties);
+            filteredList = difficultyStrategy.filter(filteredList);
         }
 
         recipeAdapter.updateList(filteredList);
@@ -308,28 +312,28 @@ public class MainActivity extends AppCompatActivity {
 
         // 검색어 필터 적용
         if (!currentQuery.isEmpty()) {
-            filteredList = searchRecipes(currentQuery);
+            RecipeFilterStrategy searchStrategy = new SearchFilterStrategy(currentQuery);
+            filteredList = searchStrategy.filter(filteredList);
         }
 
-        // 선택된 재료 필터 적용
+        // 재료 필터 적용
         if (ingredientFilterToggle.isChecked() && filterAdapter != null &&
                 !filterAdapter.getSelectedIngredients().isEmpty()) {
-            filteredList = filterRecipesByIngredients(filteredList,
+            RecipeFilterStrategy ingredientStrategy = new IngredientFilterStrategy(
                     filterAdapter.getSelectedIngredients());
+            filteredList = ingredientStrategy.filter(filteredList);
         }
 
         // 시간 필터 적용
         if (!selectedTimes.isEmpty()) {
-            filteredList = filteredList.stream()
-                    .filter(recipe -> matchesCookingTime(recipe.getCookingTime(), selectedTimes))
-                    .collect(Collectors.toList());
+            RecipeFilterStrategy timeStrategy = new TimeFilterStrategy(selectedTimes);
+            filteredList = timeStrategy.filter(filteredList);
         }
 
         // 난이도 필터 적용
         if (!selectedDifficulties.isEmpty()) {
-            filteredList = filteredList.stream()
-                    .filter(recipe -> selectedDifficulties.contains(recipe.getDifficulty()))
-                    .collect(Collectors.toList());
+            RecipeFilterStrategy difficultyStrategy = new DifficultyFilterStrategy(selectedDifficulties);
+            filteredList = difficultyStrategy.filter(filteredList);
         }
 
         recipeAdapter.updateList(filteredList);

@@ -3,37 +3,6 @@ package com.example.easycooks;
 import java.util.ArrayList;
 import java.util.List;
 
-// IRecipe 인터페이스를 파일 최상단으로 이동
-interface IRecipe {
-    String getTitle();
-
-    String getIngredients();
-
-    String getDescription();
-
-    String getCookingTime();
-
-    String getServings();
-
-    int getImageResourceId();
-
-    String getDifficulty();
-
-    void setTitle(String title);
-
-    void setIngredients(String ingredients);
-
-    void setDescription(String description);
-
-    void setCookingTime(String cookingTime);
-
-    void setServings(String servings);
-
-    void setImageResourceId(int imageResourceId);
-
-    void setDifficulty(String difficulty);
-}
-
 public class Recipe implements IRecipe {
     private String title;
     private String ingredients;
@@ -131,12 +100,11 @@ public class Recipe implements IRecipe {
             String cookingTime, String servings, int imageResourceId,
             String difficulty) {
         return new Recipe(title, ingredients, description, cookingTime,
-                servings, imageResourceId, difficulty) {
-        };
+                servings, imageResourceId, difficulty);
     }
 
     // 한식 레시피 내부 클래스
-    static class KoreanRecipe extends Recipe {
+    public static class KoreanRecipe extends Recipe {
         private String spicyLevel;
         private boolean containsKimchi;
 
@@ -191,7 +159,7 @@ public class Recipe implements IRecipe {
     }
 
     // 다이어트 레시피 내부 클래스
-    static class DietRecipe extends Recipe {
+    public static class DietRecipe extends Recipe {
         private int calories;
         private int protein;
         private boolean isVegan;
@@ -258,10 +226,10 @@ public class Recipe implements IRecipe {
     }
 
     // 저염식 레시피 내부 클래스
-    static class LowSaltRecipe extends Recipe {
-        private int sodiumContent; // mg 단위
+    public static class LowSaltRecipe extends Recipe {
+        private int sodiumContent;
         private boolean hasSaltSubstitute;
-        private String saltAlternative; // 소금 대체 재료
+        private String saltAlternative;
 
         private LowSaltRecipe(String title, String ingredients, String description,
                 String cookingTime, String servings, int imageResourceId,
@@ -281,7 +249,7 @@ public class Recipe implements IRecipe {
             private String servings = "2인분";
             private int imageResourceId;
             private String difficulty = "보통";
-            private int sodiumContent = 500; // 기본값 500mg
+            private int sodiumContent = 500;
             private boolean hasSaltSubstitute = false;
             private String saltAlternative = "";
 
@@ -319,7 +287,7 @@ public class Recipe implements IRecipe {
     }
 
     // 비건 레시피 내부 클래스
-    static class VeganRecipe extends Recipe {
+    public static class VeganRecipe extends Recipe {
         private List<String> veganProteinSources;
         private boolean isRawVegan;
         private boolean containsNutritionalYeast;
@@ -384,9 +352,9 @@ public class Recipe implements IRecipe {
     }
 
     // 저당 레시피 내부 클래스
-    static class LowSugarRecipe extends Recipe {
-        private int sugarContent; // g 단위
-        private String sweetener; // 대체 감미료
+    public static class LowSugarRecipe extends Recipe {
+        private int sugarContent;
+        private String sweetener;
         private boolean usesFruitSweetness;
 
         private LowSugarRecipe(String title, String ingredients, String description,
@@ -462,4 +430,4 @@ public class Recipe implements IRecipe {
     public int hashCode() {
         return title.hashCode();
     }
-}
+} 
