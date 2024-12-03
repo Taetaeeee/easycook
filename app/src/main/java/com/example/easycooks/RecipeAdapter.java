@@ -2,7 +2,6 @@ package com.example.easycooks;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,20 +9,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.ArrayList;
-import java.util.Collection;
+
 import java.util.List;
 
-import com.example.easycooks.Recipe;
-import com.example.easycooks.IRecipe;
-
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
-    private List<Recipe> recipeList;
-    private Context context;
+    //private List<Recipe> recipeList;
+    private List<? extends IRecipe> recipeList;
+    private final Context context;
 
-    public RecipeAdapter(List<? extends IRecipe> recipeList) {
-        this.recipeList = new ArrayList<>();
-        this.recipeList.addAll((Collection<? extends Recipe>) recipeList);
+    public RecipeAdapter(Context context, List<? extends IRecipe> recipeList) {
+        this.context = context;
+        this.recipeList = recipeList;
     }
 
     @NonNull
@@ -42,6 +38,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         holder.recipeImage.setImageResource(recipe.getImageResourceId());
 
         holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, RecipeDetail.class);
+            intent.putExtras(recipe.toBundle());
+            context.startActivity(intent);
+/*        holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), RecipeDetail.class);
             Bundle recipeData = new Bundle();
             recipeData.putString("title", recipe.getTitle());
@@ -76,18 +76,20 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             }
 
             intent.putExtras(recipeData);
-            v.getContext().startActivity(intent);
+            v.getContext().startActivity(intent);*/
         });
     }
 
     @Override
     public int getItemCount() {
-        return recipeList.size();
+        return recipeList != null ? recipeList.size() : 0;
+        //return recipeList.size();
     }
 
     public void updateList(List<? extends IRecipe> newList) {
-        this.recipeList.clear();
-        this.recipeList.addAll((Collection<? extends Recipe>) newList);
+        this.recipeList = newList;
+/*        this.recipeList.clear();
+        this.recipeList.addAll((Collection<? extends Recipe>) newList);*/
         notifyDataSetChanged();
     }
 

@@ -2,15 +2,15 @@ package com.example.easycooks;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.ArrayList;
 
-public class MyFridge extends AppCompatActivity {
+public class MyFridge extends BaseObserverActivity {
     private EditText ingredientInput;
     private ListView ingredientsList;
     private ArrayAdapter<String> adapter;
@@ -43,8 +43,8 @@ public class MyFridge extends AppCompatActivity {
             String ingredient = ingredientInput.getText().toString().trim();
             if (!ingredient.isEmpty()) {
                 SmartRefrigerator.addIngredient(ingredient);
-                adapter.clear();
-                adapter.addAll(SmartRefrigerator.getFridgeIngredients());
+                //adapter.clear();
+                //adapter.addAll(SmartRefrigerator.getFridgeIngredients());
                 ingredientInput.setText("");
             }
         });
@@ -53,9 +53,21 @@ public class MyFridge extends AppCompatActivity {
         ingredientsList.setOnItemLongClickListener((parent, view, position, id) -> {
             String ingredient = adapter.getItem(position);
             SmartRefrigerator.removeIngredient(ingredient);
-            adapter.clear();
-            adapter.addAll(SmartRefrigerator.getFridgeIngredients());
+            //adapter.clear();
+            //adapter.addAll(SmartRefrigerator.getFridgeIngredients());
             return true;
         });
+    }
+
+    @Override
+    public void onFridgeContentsChanged() {
+        // UI 업데이트
+        adapter.clear();
+        adapter.addAll(SmartRefrigerator.getFridgeIngredients());
+    }
+
+    @Override
+    public void onFavoritesChanged() {
+        // MyFridge에서는 즐겨찾기 변경 이벤트를 처리할 필요가 없으므로 비워둡니다
     }
 }

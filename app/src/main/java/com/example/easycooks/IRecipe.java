@@ -1,5 +1,8 @@
 package com.example.easycooks;
 
+import android.content.Intent;
+import android.os.Bundle;
+
 public interface IRecipe {
     String getTitle();
 
@@ -28,4 +31,6 @@ public interface IRecipe {
     void setImageResourceId(int imageResourceId);
 
     void setDifficulty(String difficulty);
+
+    Bundle toBundle();
 }

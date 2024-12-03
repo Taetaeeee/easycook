@@ -1,7 +1,10 @@
 package com.example.easycooks;
 
+import android.os.Bundle;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Recipe implements IRecipe {
     private String title;
@@ -93,6 +96,32 @@ public class Recipe implements IRecipe {
     @Override
     public void setDifficulty(String difficulty) {
         this.difficulty = difficulty;
+    }
+
+    // toBundle 메서드
+    public Bundle toBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putString("title", title);
+        bundle.putString("ingredients", ingredients);
+        bundle.putString("description", description);
+        bundle.putString("cookingTime", cookingTime);
+        bundle.putString("servings", servings);
+        bundle.putInt("imageResourceId", imageResourceId);
+        bundle.putString("difficulty", difficulty);
+        return bundle;
+    }
+
+    // fromBundle 메서드
+    public static Recipe fromBundle(Bundle bundle) {
+        return new Recipe(
+                bundle.getString("title", ""),
+                bundle.getString("ingredients", ""),
+                bundle.getString("description", ""),
+                bundle.getString("cookingTime", ""),
+                bundle.getString("servings", ""),
+                bundle.getInt("imageResourceId", 0),
+                bundle.getString("difficulty", "보통")
+        );
     }
 
     public static Recipe createDetailedRecipe(
@@ -423,11 +452,13 @@ public class Recipe implements IRecipe {
         if (o == null || getClass() != o.getClass())
             return false;
         Recipe recipe = (Recipe) o;
-        return title.equals(recipe.title);
+        return imageResourceId == recipe.imageResourceId &&
+                title.equals(recipe.title) &&
+                ingredients.equals(recipe.ingredients);
     }
 
     @Override
     public int hashCode() {
-        return title.hashCode();
+        return Objects.hash(title, ingredients, imageResourceId);
     }
 } 

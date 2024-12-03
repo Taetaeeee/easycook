@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupRecyclerViews() {
         // 레시피 RecyclerView 설정
-        recipeAdapter = new RecipeAdapter(recipeList);
+        recipeAdapter = new RecipeAdapter(this, recipeList);
         recipeRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         recipeRecyclerView.setAdapter(recipeAdapter);
 

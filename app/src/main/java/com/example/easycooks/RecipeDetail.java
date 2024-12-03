@@ -1,7 +1,12 @@
 package com.example.easycooks;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.ClickableSpan;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ImageButton;
@@ -21,7 +26,7 @@ import java.util.List;
 import com.example.easycooks.Recipe;
 import com.example.easycooks.IRecipe;
 
-public class RecipeDetail extends AppCompatActivity {
+public class RecipeDetail extends BaseObserverActivity {
     private ImageView recipeImage;
     private TextView recipeTitle;
     private TextView cookingTime;
@@ -60,8 +65,9 @@ public class RecipeDetail extends AppCompatActivity {
             // 부족한 재료를 확인하고 화면에 표시
             checkMissingIngredients(currentRecipe);
 
-            // 즐겨찾기 버튼 설정
+            // 즐겨찾기 버튼 설정, 초기 상태 설정
             setupFavoriteButton();
+            updateFavoriteButtonState();
 
             // 버튼 초기화 및 리스너 설정
             setupButtons();
@@ -74,6 +80,20 @@ public class RecipeDetail extends AppCompatActivity {
             Toast.makeText(this, "레시피를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
             finish();
         }
+    }
+
+    @Override
+    public void onFridgeContentsChanged() {
+        // 냉장고 내용이 변경되면 부족한 재료 목록 업데이트
+        if (currentRecipe != null) {
+            checkMissingIngredients(currentRecipe);
+        }
+    }
+
+    @Override
+    public void onFavoritesChanged() {
+        // 즐겨찾기 상태가 변경되면 버튼 상태 업데이트
+        updateFavoriteButtonState();
     }
 
     private void initializeBasicViews() {
@@ -201,38 +221,67 @@ public class RecipeDetail extends AppCompatActivity {
     }
 
     private void checkMissingIngredients(Recipe recipe) {
-        List<String> missingIngredients = new ArrayList<>();
-        for (String ingredient : recipe.getIngredients().split(",")) {
-            // 정규식으로 재료 이름만 추출
-            String cleanIngredient = ingredient.replaceAll("[^가-힣a-zA-Z ]", "").trim().split(" ")[0];
-            if (!SmartRefrigerator.hasIngredient(cleanIngredient.toLowerCase())) {
-                missingIngredients.add(cleanIngredient);
-            }
-        }
-
+        List<String> missingIngredients = SmartRefrigerator.getMissingIngredients(recipe.getIngredients());
         if (missingIngredients.isEmpty()) {
             missingIngredientsView.setText("모든 재료가 냉장고에 있습니다.");
         } else {
-            // 표로 구분하여 부족한 재료 문자열 생성
-            String missingText = String.join(", ", missingIngredients);
-            missingIngredientsView.setText("부족한 재료: " + missingText);
+            displayMissingIngredients(missingIngredients);
         }
     }
 
+    private void displayMissingIngredients(List<String> missingIngredients) {
+        SpannableString spannableString = new SpannableString("부족한 재료: " + TextUtils.join(", ", missingIngredients));
+        int startIndex = "부족한 재료: ".length();
+
+        for (String ingredient : missingIngredients) {
+            int endIndex = startIndex + ingredient.length();
+            spannableString.setSpan(createClickableSpan(ingredient), startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            startIndex = endIndex + 2; // ", " 길이만큼 추가
+        }
+
+        missingIngredientsView.setText(spannableString);
+        missingIngredientsView.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+    }
+
+    private ClickableSpan createClickableSpan(String ingredient) {
+        return new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                String searchQuery = Uri.encode(ingredient);
+                String url = "https://www.coupang.com/np/search?component=&q=" + searchQuery;
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+            }
+
+            @Override
+            public void updateDrawState(android.text.TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setColor(getResources().getColor(android.R.color.holo_red_dark));
+            }
+        };
+    }
+
     private void setupFavoriteButton() {
-        favoriteButton = findViewById(R.id.favoriteButton);
+        // 초기 상태 업데이트
         updateFavoriteButtonState();
 
         favoriteButton.setOnClickListener(v -> {
-            SmartRefrigerator.toggleFavorite(currentRecipe.getTitle());
-            updateFavoriteButtonState();
+            if (currentRecipe != null) {
+                SmartRefrigerator.toggleFavorite(currentRecipe.getTitle());
+                // 버튼 상태 즉시 업데이트
+                updateFavoriteButtonState();
+            }
         });
     }
 
     private void updateFavoriteButtonState() {
         if (currentRecipe != null) {
+            // 현재 레시피가 즐겨찾기에 있는지 확인
             boolean isFavorite = SmartRefrigerator.isFavorite(currentRecipe.getTitle());
-            favoriteButton.setImageResource(isFavorite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+
+            // 버튼 상태 업데이트
+            favoriteButton.setImageResource(
+                    isFavorite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border
+            );
         }
     }
 
