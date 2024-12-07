@@ -25,6 +25,7 @@ import java.util.List;
 // Recipe 관련 import 추가
 import com.example.easycooks.Recipe;
 import com.example.easycooks.IRecipe;
+import com.example.easycooks.recipe.*;
 
 public class RecipeDetail extends BaseObserverActivity {
     private ImageView recipeImage;
@@ -56,7 +57,7 @@ public class RecipeDetail extends BaseObserverActivity {
 
         // 레시피가 null이 아닐 때만 나머지 초기화 진행
         if (currentRecipe != null) {
-            // 버시피 정보 표시
+            // 레시피 정보 표시
             displayRecipeDetails(currentRecipe);
 
             // 조리 순서 설정
@@ -71,10 +72,6 @@ public class RecipeDetail extends BaseObserverActivity {
 
             // 버튼 초기화 및 리스너 설정
             setupButtons();
-
-            // 디버그 로그 추가
-            System.out.println("Current Recipe: " + currentRecipe.getTitle());
-            System.out.println("Is Custom: " + DummyRecipeData.isCustomRecipe(currentRecipe));
         } else {
             // 레시피 로드 실패 시 처리
             Toast.makeText(this, "레시피를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
@@ -131,44 +128,14 @@ public class RecipeDetail extends BaseObserverActivity {
             String title = extras.getString("title", "");
             String ingredients = extras.getString("ingredients", "");
             int imageResourceId = extras.getInt("imageResourceId", 0);
+            String recipeType = extras.getString("recipeType", "").toLowerCase();
 
-            switch (extras.getString("recipeType", "")) {
-                case "korean":
-                    return new Recipe.KoreanRecipe.Builder(title, ingredients, imageResourceId)
-                            .spicyLevel(extras.getString("spicyLevel", "보통"))
-                            .build();
-                case "diet":
-                    return new Recipe.DietRecipe.Builder(title, ingredients, imageResourceId)
-                            .calories(extras.getInt("calories", 0))
-                            .protein(extras.getInt("protein", 0))
-                            .build();
-                case "lowSalt":
-                    return new Recipe.LowSaltRecipe.Builder(title, ingredients, imageResourceId)
-                            .sodiumContent(extras.getInt("sodiumContent", 0))
-                            .withSaltSubstitute(extras.getString("saltAlternative", ""))
-                            .build();
-                case "vegan":
-                    Recipe.VeganRecipe.Builder veganBuilder = new Recipe.VeganRecipe.Builder(title, ingredients,
-                            imageResourceId);
-                    ArrayList<String> proteinSources = extras.getStringArrayList("proteinSources");
-                    if (proteinSources != null) {
-                        for (String source : proteinSources) {
-                            veganBuilder.addProteinSource(source);
-                        }
-                    }
-                    if (extras.getBoolean("isRawVegan", false)) {
-                        veganBuilder.setRawVegan();
-                    }
-                    return veganBuilder.build();
-                case "lowSugar":
-                    return new Recipe.LowSugarRecipe.Builder(title, ingredients, imageResourceId)
-                            .sugarContent(extras.getInt("sugarContent", 0))
-                            .withSweetener(extras.getString("sweetener", ""))
-                            .build();
-                default:
-                    return Recipe.createDetailedRecipe(
-                            title, ingredients, "", "30분", "2인분",
-                            imageResourceId, "보통");
+            // RecipeFactory를 사용해 레시피 객체 생성
+            try {
+                return RecipeFactory.createRecipe(recipeType, title, ingredients, imageResourceId);
+            } catch (IllegalArgumentException e) {
+                Toast.makeText(this, "알 수 없는 레시피 유형입니다: " + recipeType, Toast.LENGTH_SHORT).show();
+                return null;
             }
         }
         return null;
@@ -190,16 +157,24 @@ public class RecipeDetail extends BaseObserverActivity {
         // 재료 설정
         ingredients.setText(formatIngredients(recipe.getIngredients()));
 
-        // 영양 정보 설정 (예시)
-        nutritionInfo.setText("칼로리: 300kcal\n단백질: 20g\n탄수화물: 30g\n지방: 10g");
-
-        // 레시피 타입별 추가 정보 표시
-        if (recipe instanceof Recipe.KoreanRecipe) {
-            Recipe.KoreanRecipe koreanRecipe = (Recipe.KoreanRecipe) recipe;
-            // 한식 특화 정보 표시
-        } else if (recipe instanceof Recipe.DietRecipe) {
-            Recipe.DietRecipe dietRecipe = (Recipe.DietRecipe) recipe;
-            // 다이어트 특화 정보 표시
+        // 레시피 유형별 추가 정보 표시
+        if (recipe instanceof KoreanRecipe) {
+            KoreanRecipe koreanRecipe = (KoreanRecipe) recipe;
+            nutritionInfo.setText("매운 정도: " + koreanRecipe.getSpicyLevel());
+        } else if (recipe instanceof DietRecipe) {
+            DietRecipe dietRecipe = (DietRecipe) recipe;
+            nutritionInfo.setText("칼로리: " + dietRecipe.getCalories() + "kcal\n단백질: " + dietRecipe.getProtein() + "g");
+        } else if (recipe instanceof LowSaltRecipe) {
+            LowSaltRecipe lowSaltRecipe = (LowSaltRecipe) recipe;
+            nutritionInfo.setText("나트륨 함량: " + lowSaltRecipe.getSodiumContent() + "mg\n대체 소금: " + lowSaltRecipe.getSaltAlternative());
+        } else if (recipe instanceof VeganRecipe) {
+            VeganRecipe veganRecipe = (VeganRecipe) recipe;
+            nutritionInfo.setText("단백질 공급원: " + TextUtils.join(", ", veganRecipe.getVeganProteinSources()));
+        } else if (recipe instanceof LowSugarRecipe) {
+            LowSugarRecipe lowSugarRecipe = (LowSugarRecipe) recipe;
+            nutritionInfo.setText("저당 함량: " + lowSugarRecipe.getSugarContent() + "g\n감미료: " + lowSugarRecipe.getSweetener());
+        } else {
+            nutritionInfo.setText("영양 정보가 제공되지 않습니다.");
         }
     }
 
