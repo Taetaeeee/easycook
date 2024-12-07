@@ -140,63 +140,63 @@ public class DummyRecipeData {
 
         if (recipe instanceof KoreanRecipe) {
             if (recipe.getTitle().equals("김치찌개")) {
-                steps.add(new CookingStep(1, "김치를 적당한 크기로 썰어주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(2, "돼지고기를 썰어 김치와 함께 볶아주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(3, "물을 넣고 끓이다가 두부를 넣어주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(4, "대파를 썰어 넣고 마무리해주세요.", R.drawable.default_recipe_image));
+                steps.add(new CookingStep(1, "김치를 적당한 크기로 썰어주세요.", R.drawable.kimchi_stew_step1));
+                steps.add(new CookingStep(2, "돼지고기를 썰어 김치와 함께 볶아주세요.", R.drawable.kimchi_stew_step2));
+                steps.add(new CookingStep(3, "물을 넣고 끓이다가 두부를 넣어주세요.", R.drawable.kimchi_stew_step3));
+                steps.add(new CookingStep(4, "대파를 썰어 넣고 마무리해주세요.", R.drawable.kimchi_stew_step4));
             } else if (recipe.getTitle().equals("된장찌개")) {
-                steps.add(new CookingStep(1, "채소들을 손질하고 적당한 크기로 썰어주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(2, "물을 끓이고 된장을 풀어주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(3, "채소를 넣고 끓여주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(4, "두부를 넣고 마무리해주세요.", R.drawable.default_recipe_image));
+                steps.add(new CookingStep(1, "채소들을 손질하고 적당한 크기로 썰어주세요.", R.drawable.doenjang_stew_step1));
+                steps.add(new CookingStep(2, "물을 끓이고 된장을 풀어주세요.", R.drawable.doenjang_stew_step2));
+                steps.add(new CookingStep(3, "채소를 넣고 끓여주세요.", R.drawable.doenjang_stew_step3));
+                steps.add(new CookingStep(4, "두부를 넣고 마무리해주세요.", R.drawable.doenjang_stew_step4));
             }
         } else if (recipe instanceof DietRecipe) {
             if (recipe.getTitle().equals("닭가슴살 샐러드")) {
-                steps.add(new CookingStep(1, "닭가슴살을 삶아주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(2, "채소를 씻어 손질해주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(3, "닭가슴살을 썰어주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(4, "모든 재료를 섞어 드레싱을 뿌려주세요.", R.drawable.default_recipe_image));
+                steps.add(new CookingStep(1, "닭가슴살을 삶아주세요.", R.drawable.chicken_salad_step1));
+                steps.add(new CookingStep(2, "채소를 씻어 손질해주세요.", R.drawable.chicken_salad_step2));
+                steps.add(new CookingStep(3, "닭가슴살을 썰어주세요.", R.drawable.chicken_salad_step3));
+                steps.add(new CookingStep(4, "모든 재료를 섞어 드레싱을 뿌려주세요.", R.drawable.chicken_salad_step4));
             } else if (recipe.getTitle().equals("퀴노아 볼")) {
-                steps.add(new CookingStep(1, "퀴노아를 충분한 물에 씻어주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(2, "퀴노아를 2배의 물과 함께 삶아주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(3, "닭가슴살을 구워주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(4, "브로콜리를 살짝 데치고 아보카도와 함께 담아주세요.", R.drawable.default_recipe_image));
+                steps.add(new CookingStep(1, "퀴노아를 충분한 물에 씻어주세요.", R.drawable.quinoa_bowl_step1));
+                steps.add(new CookingStep(2, "퀴노아를 2배의 물과 함께 삶아주세요.", R.drawable.quinoa_bowl_step2));
+                steps.add(new CookingStep(3, "닭가슴살을 구워주세요.", R.drawable.quinoa_bowl_step3));
+                steps.add(new CookingStep(4, "브로콜리를 살짝 데치고 아보카도와 함께 담아주세요.", R.drawable.quinoa_bowl_step4));
             }
         } else if (recipe instanceof LowSaltRecipe) {
             if (recipe.getTitle().equals("저염 스테이크")) {
-                steps.add(new CookingStep(1, "스테이크를 실온에 30분 정도 두세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(2, "허브솔트로 살짝만 간을 해주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(3, "팬을 달군 후 올리브오일을 두르고 구워주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(4, "로즈마리와 마늘을 넣고 마무리해주세요.", R.drawable.default_recipe_image));
+                steps.add(new CookingStep(1, "스테이크를 실온에 30분 정도 두세요.", R.drawable.low_salt_steak_step1));
+                steps.add(new CookingStep(2, "허브솔트로 살짝만 간을 해주세요.", R.drawable.low_salt_steak_step2));
+                steps.add(new CookingStep(3, "팬을 달군 후 올리브오일을 두르고 구워주세요.", R.drawable.low_salt_steak_step3));
+                steps.add(new CookingStep(4, "로즈마리와 마늘을 넣고 마무리해주세요.", R.drawable.low_salt_steak_step4));
             } else if (recipe.getTitle().equals("저염 연어구이")) {
-                steps.add(new CookingStep(1, "연어를 깨끗이 씻어 물기를 제거해주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(2, "레몬즙을 뿌리고 타임을 올려주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(3, "180도로 예열된 오븐에서 12분간 구워주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(4, "레몬을 곁들여 완성해주세요.", R.drawable.default_recipe_image));
+                steps.add(new CookingStep(1, "연어를 깨끗이 씻어 물기를 제거해주세요.", R.drawable.low_salt_salmon_step1));
+                steps.add(new CookingStep(2, "레몬즙을 뿌리고 타임을 올려주세요.", R.drawable.low_salt_salmon_step2));
+                steps.add(new CookingStep(3, "180도로 예열된 오븐에서 12분간 구워주세요.", R.drawable.low_salt_salmon_step3));
+                steps.add(new CookingStep(4, "레몬을 곁들여 완성해주세요.", R.drawable.low_salt_salmon_step4));
             }
         } else if (recipe instanceof VeganRecipe) {
             if (recipe.getTitle().equals("두부 스테이크")) {
-                steps.add(new CookingStep(1, "두부의 물기를 꼭 빼주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(2, "버섯과 아스파라거스를 손질해주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(3, "두부를 스테이크 모양으로 썰어 구워주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(4, "구운 채소를 곁들여 완성해주세요.", R.drawable.default_recipe_image));
+                steps.add(new CookingStep(1, "두부의 물기를 꼭 빼주세요.", R.drawable.tofu_steak_step1));
+                steps.add(new CookingStep(2, "버섯과 아스파라거스를 손질해주세요.", R.drawable.tofu_steak_step2));
+                steps.add(new CookingStep(3, "두부를 스테이크 모양으로 썰어 구워주세요.", R.drawable.tofu_steak_step3));
+                steps.add(new CookingStep(4, "구운 채소를 곁들여 완성해주세요.", R.drawable.tofu_steak_step4));
             } else if (recipe.getTitle().equals("렌틸콩 커리")) {
-                steps.add(new CookingStep(1, "렌틸콩을 충분히 불려주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(2, "양파와 당근을 다져주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(3, "채소를 볶다가 렌틸콩과 커리가루를 넣어주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(4, "코코넛밀크를 넣고 끓여 완성해주세요.", R.drawable.default_recipe_image));
+                steps.add(new CookingStep(1, "렌틸콩을 충분히 불려주세요.", R.drawable.lentil_curry_step1));
+                steps.add(new CookingStep(2, "양파와 당근을 다져주세요.", R.drawable.lentil_curry_step2));
+                steps.add(new CookingStep(3, "채소를 볶다가 렌틸콩과 커리가루를 넣어주세요.", R.drawable.lentil_curry_step3));
+                steps.add(new CookingStep(4, "코코넛밀크를 넣고 끓여 완성해주세요.", R.drawable.lentil_curry_step4));
             }
         } else if (recipe instanceof LowSugarRecipe) {
             if (recipe.getTitle().equals("저당 그래놀라")) {
-                steps.add(new CookingStep(1, "오븐을 160도로 예열해주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(2, "견과류를 잘게 부숴주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(3, "모든 재료를 고루 섞어주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(4, "20분간 구워 식혀주세요.", R.drawable.default_recipe_image));
+                steps.add(new CookingStep(1, "오븐을 160도로 예열해주세요.", R.drawable.low_sugar_granola_step1));
+                steps.add(new CookingStep(2, "견과류를 잘게 부숴주세요.", R.drawable.low_sugar_granola_step2));
+                steps.add(new CookingStep(3, "모든 재료를 고루 섞어주세요.", R.drawable.low_sugar_granola_step3));
+                steps.add(new CookingStep(4, "20분간 구워 식혀주세요.", R.drawable.low_sugar_granola_step4));
             } else if (recipe.getTitle().equals("코코넛 치아시드 푸딩")) {
-                steps.add(new CookingStep(1, "치아시드를 코코넛밀크에 넣어주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(2, "바닐라 추출액을 넣어주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(3, "냉장고에서 4시간 이상 숙성해주세요.", R.drawable.default_recipe_image));
-                steps.add(new CookingStep(4, "취향에 따라 과일을 토핑해주세요.", R.drawable.default_recipe_image));
+                steps.add(new CookingStep(1, "치아시드를 코코넛밀크에 넣어주세요.", R.drawable.chia_pudding_step1));
+                steps.add(new CookingStep(2, "바닐라 추출액을 넣어주세요.", R.drawable.chia_pudding_step2));
+                steps.add(new CookingStep(3, "냉장고에서 4시간 이상 숙성해주세요.", R.drawable.chia_pudding_step3));
+                steps.add(new CookingStep(4, "취향에 따라 과일을 토핑해주세요.", R.drawable.chia_pudding_step4));
             }
         }
 
