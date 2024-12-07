@@ -21,6 +21,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
 
+import com.example.easycooks.recipe.KoreanRecipe;
+import com.example.easycooks.recipe.VeganRecipe;
 import com.google.android.material.chip.Chip;
 
 import java.util.Arrays;
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText ingredientInput;
     private Button addIngredientButton;
     private LinearLayout addIngredientLayout;
-    private List<String> defaultIngredients; // 기본 재료 목록
+    private List<String> defaultIngredients;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,14 +158,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 추가 필터 설정
         setupAdditionalFilters();
     }
 
     private void setupAdditionalFilters() {
-        timeFilterChip = findViewById(R.id.timeFilterChip);
-        difficultyFilterChip = findViewById(R.id.difficultyFilterChip);
-
         timeFilterChip.setOnClickListener(v -> showTimeFilterDialog());
         difficultyFilterChip.setOnClickListener(v -> showDifficultyFilterDialog());
     }
@@ -207,7 +205,6 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onIngredientRemoved(String ingredient) {
-                        // 기본 재료 목록에서 제거된 재료 삭제
                         defaultIngredients = new ArrayList<>(defaultIngredients);
                         defaultIngredients.remove(ingredient);
                     }
@@ -253,6 +250,21 @@ public class MainActivity extends AppCompatActivity {
             filteredList = difficultyStrategy.filter(filteredList);
         }
 
+        // 레시피 타입별 필터링 추가
+        if (filterAdapter != null && !filterAdapter.getSelectedIngredients().isEmpty()) {
+            filteredList = filteredList.stream()
+                    .filter(recipe -> {
+                        if (recipe instanceof KoreanRecipe && ((KoreanRecipe) recipe).containsKimchi()) {
+                            return filterAdapter.getSelectedIngredients().contains("김치");
+                        }
+                        if (recipe instanceof VeganRecipe) {
+                            return !recipe.getIngredients().toLowerCase().contains("고기");
+                        }
+                        return true;
+                    })
+                    .collect(Collectors.toList());
+        }
+
         recipeAdapter.updateList(filteredList);
     }
 
@@ -260,7 +272,6 @@ public class MainActivity extends AppCompatActivity {
         String[] times = { "15분 이내", "30분 이내", "1시간 이내", "1시간 이상" };
         boolean[] checkedItems = new boolean[times.length];
 
-        // 현재 선택된 항목 체크
         for (int i = 0; i < times.length; i++) {
             checkedItems[i] = selectedTimes.contains(times[i]);
         }
@@ -276,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setPositiveButton("확인", (dialog, which) -> {
                     timeFilterChip.setChecked(!selectedTimes.isEmpty());
-                    applyFilters();
+                    applyAllFilters();
                 })
                 .setNegativeButton("취소", null)
                 .show();
@@ -301,42 +312,37 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setPositiveButton("확인", (dialog, which) -> {
                     difficultyFilterChip.setChecked(!selectedDifficulties.isEmpty());
-                    applyFilters();
+                    applyAllFilters();
                 })
                 .setNegativeButton("취소", null)
                 .show();
     }
 
-    private void applyFilters() {
-        List<? extends IRecipe> filteredList = recipeList;
+    private List<String> searchIngredients(String query) {
+        Set<String> ingredients = new HashSet<>();
+        for (IRecipe recipe : recipeList) {
+            String[] recipeIngredients = recipe.getIngredients().split(",");
+            for (String ingredient : recipeIngredients) {
+                String cleanIngredient = ingredient.trim();
+                if (cleanIngredient.toLowerCase().contains(query.toLowerCase())) {
+                    ingredients.add(cleanIngredient);
+                }
+            }
+        }
+        return new ArrayList<>(ingredients);
+    }
 
-        // 검색어 필터 적용
-        if (!currentQuery.isEmpty()) {
-            RecipeFilterStrategy searchStrategy = new SearchFilterStrategy(currentQuery);
-            filteredList = searchStrategy.filter(filteredList);
+    private List<? extends IRecipe> filterRecipesByIngredients(List<? extends IRecipe> recipes,
+                                                               List<String> ingredients) {
+        if (ingredients.isEmpty()) {
+            return recipes;
         }
 
-        // 재료 필터 적용
-        if (ingredientFilterToggle.isChecked() && filterAdapter != null &&
-                !filterAdapter.getSelectedIngredients().isEmpty()) {
-            RecipeFilterStrategy ingredientStrategy = new IngredientFilterStrategy(
-                    filterAdapter.getSelectedIngredients());
-            filteredList = ingredientStrategy.filter(filteredList);
-        }
-
-        // 시간 필터 적용
-        if (!selectedTimes.isEmpty()) {
-            RecipeFilterStrategy timeStrategy = new TimeFilterStrategy(selectedTimes);
-            filteredList = timeStrategy.filter(filteredList);
-        }
-
-        // 난이도 필터 적용
-        if (!selectedDifficulties.isEmpty()) {
-            RecipeFilterStrategy difficultyStrategy = new DifficultyFilterStrategy(selectedDifficulties);
-            filteredList = difficultyStrategy.filter(filteredList);
-        }
-
-        recipeAdapter.updateList(filteredList);
+        return recipes.stream()
+                .filter(recipe -> ingredients.stream()
+                        .anyMatch(ingredient -> recipe.getIngredients().toLowerCase()
+                                .contains(ingredient.toLowerCase())))
+                .collect(Collectors.toList());
     }
 
     private boolean matchesCookingTime(String cookingTime, Set<String> selectedTimes) {
@@ -365,7 +371,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private int parseCookingTime(String cookingTime) {
-        // "30분" -> 30 변환 로직
         try {
             return Integer.parseInt(cookingTime.replaceAll("[^0-9]", ""));
         } catch (NumberFormatException e) {
@@ -376,33 +381,6 @@ public class MainActivity extends AppCompatActivity {
     private void performSearch(String query) {
         List<? extends IRecipe> searchResults = searchRecipes(query);
         recipeAdapter.updateList(searchResults);
-    }
-
-    private List<String> searchIngredients(String query) {
-        Set<String> ingredients = new HashSet<>();
-        for (IRecipe recipe : recipeList) {
-            String[] recipeIngredients = recipe.getIngredients().split(",");
-            for (String ingredient : recipeIngredients) {
-                String cleanIngredient = ingredient.trim();
-                if (cleanIngredient.toLowerCase().contains(query.toLowerCase())) {
-                    ingredients.add(cleanIngredient);
-                }
-            }
-        }
-        return new ArrayList<>(ingredients);
-    }
-
-    private List<? extends IRecipe> filterRecipesByIngredients(List<? extends IRecipe> recipes,
-            List<String> ingredients) {
-        if (ingredients.isEmpty()) {
-            return recipes;
-        }
-
-        return recipes.stream()
-                .filter(recipe -> ingredients.stream()
-                        .anyMatch(
-                                ingredient -> recipe.getIngredients().toLowerCase().contains(ingredient.toLowerCase())))
-                .collect(Collectors.toList());
     }
 
     private List<? extends IRecipe> searchRecipes(String query) {
